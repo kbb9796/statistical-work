@@ -1,2 +1,2 @@
 # statistical-work
-Code and visuals for computational neuroscience research I completed in the Miri Lab, as well as other statistical projects I do in my free time.
+This repository contains code and visuals I created in the Miri Lab while conducting computational neuroscience research, as well as other statistical projects I work on in my free time.
