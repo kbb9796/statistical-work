@@ -1,5 +1,3 @@
-# statistical-work
-
 This repository contains: (1) code and visuals for personal statistical projects (2) brief explanations of potential computational neuroscience projects, and (3) brief explanations of undergraduate math projects. I intend for this repository to give the reader an idea of some of the mathematics I enjoy and would like to explore further. 
 
 ## Personal statistical projects
