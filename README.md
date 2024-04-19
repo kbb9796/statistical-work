@@ -14,7 +14,7 @@ At the [Miri Lab](https://www.mirilab.org), I would like to investigate state-sp
 
 ## Undergraduate math projects
 
-I explored rates of convergence for Markov chains with Dr. Ursula Porod (Associate Chair of Mathematics Department) in an independent study. We studied probabilistic and spectral methods for determining rates of convergence, specifically for random walks on permutation groups. In the Directed Reading Program (DRP), my mentor and I proved major theorems in ergodic theory, and uncovered the isomorphic structure between the "doubling map" and binary expansions. And with another mentor, I used Brownian motion to solve the Dirichlet problem for the heat equation. We coded simulations to find the temperature distribution on the interior of a domain given an initial temperature distribution on its boundary. 
+I explored rates of convergence for Markov chains with Dr. Ursula Porod (Associate Chair of Mathematics Department) for a quarter. We studied probabilistic and spectral methods for determining rates of convergence, specifically for random walks on permutation groups. In the Directed Reading Program (DRP), my mentor and I proved major theorems in ergodic theory, and uncovered the isomorphic structure between the "doubling map" and binary expansions. And with another mentor, I used Brownian motion to solve the Dirichlet problem for the heat equation. We coded simulations to find the temperature distribution on the interior of a domain given an initial temperature distribution on its boundary. 
 
 ## Please check out the notebooks above!
 
