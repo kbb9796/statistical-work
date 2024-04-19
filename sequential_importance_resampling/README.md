@@ -1,3 +1,5 @@
+# Sequential Importance Resampling (SIR)
+
 This notebook implements a sequential Monte Carlo method called sequential importance resampling (SIR). Similar to a particle filter, SIR infers the latent trajectory of a state-space model that generates a timeseries of observed data. In this example, we use SIR to infer the latent dynamics that generate a neural spike train. 
 
 In our case, we assume the latent process evolves according to a random walk with drift until it reaches a threshold. At each time step in the sequence of observed data, the latent state determines the rate parameter of a Poisson process, which then generates the observed data. When we know the parameters that dictate the random walk and the function that maps the latent state to the Poisson rate parameter, we can estimate the value of the latent state at each step in the timeseries. In a carefully crafted neuroscience experiment, these latent states may tell us something about computation in the brain. 
