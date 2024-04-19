@@ -4,9 +4,9 @@ This repository contains: (1) code and visuals implementing statistical methods 
 
 ## Personal statistical projects
 
-Several Python notebooks implement Markov Chain Monte Carlo (MCMC) methods. MCMC enables us to sample otherwise intractable probability distributions and estimate quantities of interest. Specifically, I apply MCMC to [statistical mechanics](ising_model_mcmc/README.md), cryptography, and basic NP-hard problems. The other notebooks implement latent variable methods. 
+Several Python notebooks implement Markov Chain Monte Carlo (MCMC) methods. MCMC enables us to sample otherwise intractable probability distributions and estimate quantities of interest. Specifically, I apply MCMC to [statistical mechanics](ising_model_mcmc/README.md), [cryptography](cipher_decoding/README.md), and [basic NP-hard problems](simulated_annealing/README.md). The other notebooks implement latent variable methods. 
 
-In particular, one notebook employs sequential importance resampling (SIR) to recover the latent dynamics of a toy state-space model. The others explore the data augmentation algorithm (Tanner, 1996). One application simplifies the form of an analytically complex posterior distribution, and the other better estimates a posterior of linear regression parameters given right-censored data.
+In particular, one notebook employs [sequential importance resampling (SIR)](sequential_importance_resampling/README.md) to recover the latent dynamics of a toy state-space model. The others explore the [data augmentation algorithm](data_augmentation/README.md) (Tanner, 1996). One application simplifies the form of an analytically complex posterior distribution, and the other better estimates a posterior of linear regression parameters given right-censored data.
 
 ## Potential computational neuroscience projects
 
