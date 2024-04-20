@@ -6,7 +6,7 @@ This repository contains: (1) code and visuals implementing statistical methods 
 
 Several notebooks implement Markov Chain Monte Carlo (MCMC) methods. MCMC circumvents intractable expectations, allowing us to accurately estimate otherwise impossible quantities of interest. Specifically, I apply MCMC to [statistical mechanics](ising_model_mcmc/README.md), [cryptography](cipher_decoding/README.md), and [basic NP-hard](simulated_annealing/README.md) problems. 
 
-The other notebooks implement latent variable methods. In particular, one notebook employs [sequential importance resampling (SIR)](sequential_importance_resampling/README.md) to recover the latent dynamics of a toy state-space model. The other explores the [data augmentation algorithm](data_augmentation/README.md) (Tanner, 1996). One of the demonstrated applications simplifies the form of a complex posterior distribution, and the second better estimates a posterior of linear regression parameters given right-censored data.
+The other notebooks implement latent variable methods. In particular, one notebook employs [sequential importance resampling (SIR)](sequential_importance_resampling/README.md) to recover the latent dynamics of a toy state-space model. The other explores the [data augmentation algorithm](data_augmentation/README.md) (Tanner, 1996). One of the demonstrated applications simplifies the form of an unwieldy posterior distribution, and the second better estimates a posterior of linear regression parameters given right-censored data.
 
 ## Potential computational neuroscience projects
 
