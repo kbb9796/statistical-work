@@ -1,5 +1,7 @@
 # Data augmentation
 
+Test $Q^{*}$
+
 The data augmentation algorithm serves two purposes: (1) to simplify the form of an intractable or unwieldy posterior distribution, or (2) better approximate the posterior in cases where we have "incomplete" data. Here, I demonstrate the former using an example adapted from Tanner, 1996. 
 
 ## Simplifying the form of a posterior distribution
