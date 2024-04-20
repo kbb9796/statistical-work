@@ -14,7 +14,7 @@ We augment the observed data $y$ with a latent variable $x$. We construct $x$ by
  
 The conditional predictive distribution for $x_{2}$ is given by $$x_{2} \sim Binom(n = y_{1}, p = \frac{\theta}{\theta + 2}).$$ To be clear, $n$ is the number of counts in $y_{1}$, and $p$ is the probability that a count from $y_{1}$ falls in the $x_{2}$ cell. We compute $p$ by dividing the probability of being in $x_{2}$ by the probability of being in $y_{1}$. 
 
-Thus, at each iteration of the algorithm, we generate $x_{2}^{(t)}$ from the current conditional predictive distribution where $$p = \frac{\theta_{(t-1)}^(*)}{\theta_{(t-1)}^(*) + 2}$$. Then, we update the posterior distribution by plugging in $x_{2}^{(t)}$ into the equation for $p(\theta | y)$. We sample $\theta^*_{t+1}$ from the corresponding beta distribution. We repeat this process until the algorithm converges. At that point, we have a sample from the desired posterior distribution!
+Thus, at each iteration of the algorithm, we generate $x_{2}^{(t)}$ from the current conditional predictive distribution where $$p = \frac{\theta_{(t-1)}*}{\theta_{(t-1)}* + 2}$$. Then, we update the posterior distribution by plugging in $x_{2}^{(t)}$ into the equation for $p(\theta | y)$. We sample $\theta^*_{t+1}$ from the corresponding beta distribution. We repeat this process until the algorithm converges. At that point, we have a sample from the desired posterior distribution!
 
 
 ```python
