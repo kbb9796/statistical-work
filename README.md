@@ -1,6 +1,6 @@
 ## Overview
 
-This repository contains: (1) code and visuals implementing statistical methods of interest, (2) brief explanations of planned computational neuroscience research, and (3) brief descriptions of past undergraduate math projects. This repository should give the reader an idea of what math I enjoy and would like to explore further. 
+This repository contains: (1) code and visuals implementing my statistical methods interests, (2) brief explanations of my planned computational neuroscience research, and (3) brief descriptions of my undergraduate math projects. This repository should give the reader an idea of what math I enjoy and would like to explore further. 
 
 ## Personal statistical projects
 
