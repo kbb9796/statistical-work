@@ -6,7 +6,7 @@ This repository contains: (1) code and visuals implementing my statistical inter
 
 ### Markov chain Monte Carlo
 
-Several notebooks implement Markov Chain Monte Carlo (MCMC) methods. MCMC circumvents intractable expectations and estimates these otherwise impossible quantities. I apply MCMC to [statistical mechanics](ising_model_mcmc/README.md), [cryptography](cipher_decoding/README.md), and [basic NP-hard](simulated_annealing/README.md) problems. 
+Several notebooks implement Markov Chain Monte Carlo (MCMC) methods. MCMC circumvents intractable expectations and estimates otherwise impossible quantities. I apply MCMC to [statistical mechanics](ising_model_mcmc/README.md), [cryptography](cipher_decoding/README.md), and [basic NP-hard](simulated_annealing/README.md) problems. 
 
 ### Latent variables
 
