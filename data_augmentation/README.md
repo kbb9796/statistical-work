@@ -119,7 +119,7 @@ for ii_index, ii_image in enumerate(image_nums):
     plt.xlabel('Iteration')
     plt.ylabel('$\\theta$')
     plt.ylim([0, 1])
-    plt.xlim([0, np.size(theta_sample)])
+    plt.xlim([0, numImputations])
     plt.title('Sample from Posterior Distribution')
     plt.savefig(f'theta_sampler/temp_fig{ii_index:.0f}.png')
     plt.close()
@@ -132,13 +132,19 @@ for filename in filenames:
     images.append(imageio.imread(filename))
 
 print('Writing gif')
-print('Test')
 imageio.mimsave('theta_sampler.gif', images)
 ```
 
     Saving images to write to gif
     Writing gif
-    Test
+
+
+
+```python
+print(np.size(theta_sample))
+```
+
+    5000
 
 
 ![theta sampler animation](theta_sampler.gif)
@@ -164,7 +170,7 @@ plt.show()
 
 
     
-![png](README_files/README_5_0.png)
+![png](README_files/README_6_0.png)
     
 
 
@@ -384,13 +390,13 @@ print('Covariance matrix for nonaugmented joint posterior: ', np.cov(beta0Distri
 
 
     
-![png](README_files/README_10_1.png)
+![png](README_files/README_11_1.png)
     
 
 
 
     
-![png](README_files/README_10_2.png)
+![png](README_files/README_11_2.png)
     
 
 
@@ -431,13 +437,13 @@ plt.show()
 
 
     
-![png](README_files/README_12_0.png)
+![png](README_files/README_13_0.png)
     
 
 
 
     
-![png](README_files/README_12_1.png)
+![png](README_files/README_13_1.png)
     
 
 
@@ -484,18 +490,18 @@ plt.show()
 
 
     
-![png](README_files/README_14_0.png)
+![png](README_files/README_15_0.png)
     
 
 
 
     
-![png](README_files/README_14_1.png)
+![png](README_files/README_15_1.png)
     
 
 
 
     
-![png](README_files/README_14_2.png)
+![png](README_files/README_15_2.png)
     
 
