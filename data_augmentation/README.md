@@ -119,6 +119,7 @@ for ii_index, ii_image in enumerate(image_nums):
     plt.xlabel('Iteration')
     plt.ylabel('$\\theta$')
     plt.ylim([0, 1])
+    plt.xlim([0, np.size(theta_sample)])
     plt.title('Sample from Posterior Distribution')
     plt.savefig(f'theta_sampler/temp_fig{ii_index:.0f}.png')
     plt.close()
@@ -131,11 +132,13 @@ for filename in filenames:
     images.append(imageio.imread(filename))
 
 print('Writing gif')
+print('Test')
 imageio.mimsave('theta_sampler.gif', images)
 ```
 
     Saving images to write to gif
     Writing gif
+    Test
 
 
 ![theta sampler animation](theta_sampler.gif)
