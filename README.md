@@ -1,4 +1,4 @@
-<img src="new_github_logo.gif" width = "700" height = "200">
+<img src="new_github_logo.gif" width = "400" height = "200"> <img src="data_augmentation/theta_sampler.gif" width = "400" height = "200"> 
 
 ## Overview
 
