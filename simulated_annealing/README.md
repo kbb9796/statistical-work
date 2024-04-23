@@ -151,9 +151,14 @@ temp, temp2, history = min_configuration(start_temp = 12, max_stages=100, start_
 
 import imageio
 
-num_images = 225
-image_nums = [int(temp_image) for temp_image in np.linspace(0, np.shape(history)[0] - 1, num_images)]
-counter = 0
+num_images_first = 50
+first_iteration_stop = 5000
+first_image_nums = [int(temp_image) for temp_image in np.linspace(0, first_iteration_stop, num_images_first)]
+num_images_second = 10
+second_iteration_stop = np.shape(history)[0] - 1
+second_image_nums = [int(temp_image) for temp_image in np.linspace(first_iteration_stop, second_iteration_stop, num_images_second)]
+image_nums = np.concatenate((first_image_nums, second_image_nums))
+num_images = num_images_first + num_images_second
 print('Saving images to write to gif')
 
 for ii_index, ii_image in enumerate(image_nums):
@@ -169,9 +174,8 @@ for ii_index, ii_image in enumerate(image_nums):
     plt.gca().spines['right'].set_visible(False)
     plt.gca().spines['left'].set_visible(False)
     plt.gca().spines['bottom'].set_visible(False)
-    plt.savefig(f'tsp_configs/temp_fig{counter:.0f}.png')
+    plt.savefig(f'tsp_configs/temp_fig{ii_index:.0f}.png')
     plt.close()
-    counter += 1
 
 images = []
 filenames = [f'tsp_configs/temp_fig{ii_image:.0f}.png' for ii_image in range(num_images)]
