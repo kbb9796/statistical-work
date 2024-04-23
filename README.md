@@ -10,7 +10,7 @@ Two notebooks implement latent variable methods. One employs [sequential importa
 
 ## Computational neuroscience
 
-At the [Miri Lab](https://www.mirilab.org), I would like to investigate state-space models for neural computation in "self-paced" decision making. Namely, with high dimensional neural timeseries data, I want to uncover latent dynamics using a [Poisson Linear Dynamical System (PLDS) model](https://papers.nips.cc/paper_files/paper/2011/file/7143d7fbadfa4693b9eec507d9d37443-Paper.pdf). Similarly, I would like to compare the [diffusion-to-bound model to the switching model](https://www.cambridge.org/core/books/abs/advanced-state-space-methods-for-neural-and-clinical-data/estimating-state-and-parameters-in-state-space-models-of-spike-trains/FAB8634C2790F3461E3E86BB632EAE6F) and determine which model best describes our data in a Bayesian framework.  
+In addition to my previous work at the [Miri Lab](https://www.mirilab.org), I have started to investigate state-space models for neural computation in "self-paced" decision making. Namely, I aim to uncover the latent dynamics underlying self-paced decision making in neural spike trains using a [Poisson Linear Dynamical System (PLDS) model](https://papers.nips.cc/paper_files/paper/2011/file/7143d7fbadfa4693b9eec507d9d37443-Paper.pdf). Similarly, I would like to compare the [diffusion-to-bound model to the switching model](https://www.cambridge.org/core/books/abs/advanced-state-space-methods-for-neural-and-clinical-data/estimating-state-and-parameters-in-state-space-models-of-spike-trains/FAB8634C2790F3461E3E86BB632EAE6F) and determine which model best describes our data in a Bayesian framework.  
 
 ## Undergraduate math projects
 
