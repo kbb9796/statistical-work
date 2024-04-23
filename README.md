@@ -18,4 +18,4 @@ Most notably, I explored rates of convergence for Markov chains with Dr. Ursula 
 
 ## Please check out the notebooks above!
 
-Hopefully, the reader will gain an understanding of what statistical and mathematical work interests me. I understand some of these problems are well studied, and there may be similar work out there. Nonetheless, solving these problems and writing the programs myself has been a useful exercise. 
+Hopefully, the reader will gain an understanding of what statistical and mathematical work interests me. I understand some of these problems are well studied, and there may be similar work out there. Nonetheless, solving these problems and writing the programs myself have been useful exercises. 
