@@ -1,3 +1,5 @@
+<img src="new_github_log.gif" alt="ising low temp" width="100%"/>
+
 ## Overview
 
 This repository contains: (1) code and visuals implementing my statistical interests, (2) brief explanations of my current and planned computational neuroscience research, and (3) brief descriptions of my undergraduate math projects. This repository should give the reader an idea of what math I enjoy and would like to explore further. 
@@ -19,5 +21,3 @@ Most notably, I explored rates of convergence for Markov chains with Dr. Ursula 
 ## Please check out the notebooks above!
 
 Hopefully, the reader will gain an understanding of what statistical and mathematical work interests me. I understand some of these problems are well studied, and there may be similar work out there. Nonetheless, solving these problems and writing the programs myself have been useful exercises. 
-
-<img src="ising_model_mcmc/ising_model_lowtemp.gif" alt="ising low temp" width="50%"/>
