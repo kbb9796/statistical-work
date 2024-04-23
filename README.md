@@ -1,4 +1,4 @@
-<img src="new_github_log.gif" alt="ising low temp" width="100%"/>
+<img src="new_github_logo.gif" width = "700" height = "200">
 
 ## Overview
 
