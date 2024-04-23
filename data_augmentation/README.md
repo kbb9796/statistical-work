@@ -98,7 +98,49 @@ convergenceQuantiles = np.quantile(posteriorApproximations, quantiles, axis = 1)
     
 
 
-We can see that the sample from the augmented posterior agrees well with the true analytical posterior. We have made use of the fact that we can easily sample a simplified posterior distribution by augmenting the observed data with latent variables. We can also see that the posterior distribution converges in just a handful of iterations below. 
+We can see that the sample from the augmented posterior agrees well with the true analytical posterior. We have made use of the fact that we can easily sample a simplified posterior distribution by augmenting the observed data with latent variables. An animated sample from the posterior distribution is shown below. 
+
+
+```python
+# Theta sampler gif
+
+burn_in = 99 # number of burn in iterations
+theta_sample = posteriorApproximations[burn_in:, :].flatten()
+
+import imageio
+
+num_images = 100
+image_nums = [int(temp_image) for temp_image in np.linspace(0, np.size(theta_sample), num_images)]
+print('Saving images to write to gif')
+
+for ii_index, ii_image in enumerate(image_nums):
+
+    plt.plot(theta_sample[:ii_image], color = 'black')
+    plt.xlabel('Iteration')
+    plt.ylabel('$\\theta$')
+    plt.ylim([0, 1])
+    plt.title('Sample from Posterior Distribution')
+    plt.savefig(f'theta_sampler/temp_fig{ii_index:.0f}.png')
+    plt.close()
+
+images = []
+filenames = [f'theta_sampler/temp_fig{ii_image:.0f}.png' for ii_image in range(num_images)]
+
+for filename in filenames:
+
+    images.append(imageio.imread(filename))
+
+print('Writing gif')
+imageio.mimsave('theta_sampler.gif', images)
+```
+
+    Saving images to write to gif
+    Writing gif
+
+
+![theta sampler animation](theta_sampler.gif)
+
+We can also see that the posterior distribution converges in just a handful of iterations below. 
 
 
 ```python
@@ -119,7 +161,7 @@ plt.show()
 
 
     
-![png](README_files/README_3_0.png)
+![png](README_files/README_5_0.png)
     
 
 
@@ -339,13 +381,13 @@ print('Covariance matrix for nonaugmented joint posterior: ', np.cov(beta0Distri
 
 
     
-![png](README_files/README_8_1.png)
+![png](README_files/README_10_1.png)
     
 
 
 
     
-![png](README_files/README_8_2.png)
+![png](README_files/README_10_2.png)
     
 
 
@@ -386,13 +428,13 @@ plt.show()
 
 
     
-![png](README_files/README_10_0.png)
+![png](README_files/README_12_0.png)
     
 
 
 
     
-![png](README_files/README_10_1.png)
+![png](README_files/README_12_1.png)
     
 
 
@@ -439,18 +481,18 @@ plt.show()
 
 
     
-![png](README_files/README_12_0.png)
+![png](README_files/README_14_0.png)
     
 
 
 
     
-![png](README_files/README_12_1.png)
+![png](README_files/README_14_1.png)
     
 
 
 
     
-![png](README_files/README_12_2.png)
+![png](README_files/README_14_2.png)
     
 
