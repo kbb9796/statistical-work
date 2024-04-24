@@ -31,12 +31,6 @@ currentTheta = np.random.uniform(0, 1, numImputations)
 
 for iiIteration in range(numIterations):
 
-    # Display every n'th iteration
-
-    if iiIteration % 100 == 0:
-        
-        print('Iteration: ', iiIteration)
-
     # Generate m imputations / latent variables from the current posterior distribution (represented by a sample of thetas not just one theta)
 
     currentImputations = np.zeros([numImputations])
@@ -54,10 +48,6 @@ for iiIteration in range(numIterations):
         currentTheta[jjImputation] = np.random.beta(currentLatentVariable + y4 + 1, y2 + y3 + 1, 1) # sampling the current approximation to the posterior
         # (which of course depends on the latent variables that in turn depend on the previous approximation to the posterior)
         posteriorApproximations[iiIteration, jjImputation] = currentTheta[jjImputation]
-
-    if iiIteration == (numIterations - 1):
-
-        print('Arrived at final approximation to the posterior distribution')
 
 
 ## Plot the true posterior distribution as well 
@@ -88,7 +78,6 @@ convergenceQuantiles = np.quantile(posteriorApproximations, quantiles, axis = 1)
 ```
 
     Iteration:  0
-    Arrived at final approximation to the posterior distribution
     Adding labels
 
 
@@ -98,14 +87,14 @@ convergenceQuantiles = np.quantile(posteriorApproximations, quantiles, axis = 1)
     
 
 
-We can see that the sample from the augmented posterior agrees well with the true analytical posterior. We have made use of the fact that we can easily sample a simplified posterior distribution by augmenting the observed data with latent variables. An animated sample from the posterior distribution is shown below. 
+We can see that the sample from the augmented posterior agrees well with the true analytical posterior. We have made use of the fact that we can easily sample a simplified posterior distribution by augmenting the observed data with latent variables. An animated sample from the final augmented posterior and conditional predictive distribution is shown below to emphasize the interdependence between the augmenting and updating steps. The sample for $\theta$ is shown in black, $x_{2}$ in red. 
 
 
 ```python
 # Theta sampler gif
 
-burn_in = 99 # number of burn in iterations
-theta_sample = posteriorApproximations[burn_in:, :].flatten()
+theta_sample = posteriorApproximations[-1:, :].flatten()
+augmented_sample = currentImputations
 
 import imageio
 
@@ -115,12 +104,18 @@ print('Saving images to write to gif')
 
 for ii_index, ii_image in enumerate(image_nums):
 
-    plt.plot(theta_sample[:ii_image], color = 'black')
-    plt.xlabel('Iteration')
-    plt.ylabel('$\\theta$')
-    plt.ylim([0, 1])
-    plt.xlim([0, numImputations])
-    plt.title('Sample from Posterior Distribution')
+    fig, ax1 = plt.subplots()
+    ax1.set_xlabel('Iteration')
+    ax1.set_ylabel('$\\theta$', color = 'black')
+    ax1.plot(theta_sample[:ii_image], color = 'black')
+    ax1.set_ylim([0, 1])
+    ax1.set_xlim([0, numImputations])
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Augmented $x_{2}$', color = 'red')
+    ax2.plot(augmented_sample[:ii_image], color = 'red')
+    ax2.set_ylim([0, 125])
+    plt.suptitle('Samples from Posterior and Conditional Predictive Distribution')
     plt.savefig(f'theta_sampler/temp_fig{ii_index:.0f}.png')
     plt.close()
 
@@ -139,17 +134,9 @@ imageio.mimsave('theta_sampler.gif', images)
     Writing gif
 
 
-
-```python
-print(np.size(theta_sample))
-```
-
-    5000
-
-
 ![theta sampler animation](theta_sampler.gif)
 
-We can also see that the posterior distribution converges in just a handful of iterations below. 
+We can also see that the posterior distribution converges in just a handful of iterations below. Only in the first few iterations does the posterior meaningfully change. 
 
 
 ```python
@@ -170,7 +157,7 @@ plt.show()
 
 
     
-![png](README_files/README_6_0.png)
+![png](README_files/README_5_0.png)
     
 
 
@@ -390,13 +377,13 @@ print('Covariance matrix for nonaugmented joint posterior: ', np.cov(beta0Distri
 
 
     
-![png](README_files/README_11_1.png)
+![png](README_files/README_10_1.png)
     
 
 
 
     
-![png](README_files/README_11_2.png)
+![png](README_files/README_10_2.png)
     
 
 
@@ -437,13 +424,13 @@ plt.show()
 
 
     
-![png](README_files/README_13_0.png)
+![png](README_files/README_12_0.png)
     
 
 
 
     
-![png](README_files/README_13_1.png)
+![png](README_files/README_12_1.png)
     
 
 
@@ -490,18 +477,18 @@ plt.show()
 
 
     
-![png](README_files/README_15_0.png)
+![png](README_files/README_14_0.png)
     
 
 
 
     
-![png](README_files/README_15_1.png)
+![png](README_files/README_14_1.png)
     
 
 
 
     
-![png](README_files/README_15_2.png)
+![png](README_files/README_14_2.png)
     
 
