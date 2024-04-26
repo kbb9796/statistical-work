@@ -6,3 +6,7 @@
 
 # Ignore a directory and its contents
 
+data_augmentation/theta_sampler_joint
+data_augmentation/theta_sampler_iterations
+data_augmentation/augmented_survival_times
+
