@@ -77,7 +77,6 @@ convergenceQuantiles = np.quantile(posteriorApproximations, quantiles, axis = 1)
 
 ```
 
-    Iteration:  0
     Adding labels
 
 
@@ -93,7 +92,7 @@ We can see that the sample from the augmented posterior agrees well with the tru
 ```python
 # Theta sampler gif
 
-theta_sample = posteriorApproximations[-1:, :].flatten()
+theta_sample = posteriorApproximations[-1, :].flatten()
 augmented_sample = currentImputations
 
 import imageio
@@ -161,7 +160,7 @@ plt.show()
     
 
 
-## Better approximating posterior in case of right-censored data
+## Better approximating posterior with right-censored data
 
 Now, moving to the second application of data augmentation, I demonstrate how to better approximate a posterior in cases where we have "missing" or "incomplete" data.  
 
@@ -179,7 +178,6 @@ import random
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 
-# np.random.seed(211) # For reproducibility
 stanfordHeartData = pd.read_csv('heart_transplant.csv') # Load data in 
 
 ## Regressing log survival time on age to get sample variance of residuals
@@ -189,10 +187,10 @@ deadIndices = stanfordHeartData.index[stanfordHeartData['survived'] == 'dead'].t
 
 # Truncate data
  
-truncatedAlive = 28
-truncatedDead = 20
-aliveIndices = random.sample(aliveIndices, truncatedAlive)
-deadIndices = random.sample(deadIndices, truncatedDead)
+# truncatedAlive = 28
+# truncatedDead = 15
+# aliveIndices = random.sample(aliveIndices, truncatedAlive)
+# deadIndices = random.sample(deadIndices, truncatedDead)
 deadSurvivalTimes = stanfordHeartData['survtime'][deadIndices]
 logDeadSurvivalTimes = np.array(np.log(deadSurvivalTimes))
 deadAge = np.array(stanfordHeartData['age'][deadIndices])
@@ -208,8 +206,8 @@ model = LinearRegression()
 deadAgeReshaped = deadAge.reshape(-1, 1)
 logDeadSurvivalTimesReshaped = logDeadSurvivalTimes.reshape(-1, 1)
 model.fit(deadAgeReshaped, logDeadSurvivalTimesReshaped)
-beta0 = model.intercept_[0]
-beta1 = model.coef_[0][0]
+init_beta_0 = model.intercept_[0]
+init_beta_1 = model.coef_[0][0]
 yHat = model.predict(deadAgeReshaped)
 residuals = yHat - logDeadSurvivalTimesReshaped # Flatten  predicted values
 nonAugmentedResidualVariance = np.var(residuals)
@@ -220,14 +218,17 @@ nonAugmentedResidualVariance = np.var(residuals)
 # Draw error variance from chi square distribution
 
 numObservedData = len(deadSurvivalTimes)
-numIterations = 50
+numIterations = 30
 numImputations = 5000
 currentResidualVariance = (numObservedData - 1) * nonAugmentedResidualVariance / np.random.chisquare(numObservedData - 1, numImputations)
 designMatrix = np.ones([numObservedData, 2])
 designMatrix[:, 1] = deadAgeReshaped.flatten()
-jointPosteriorApprox = np.zeros([numImputations, 3])
-jointPosteriorApprox[:, 2] = currentResidualVariance.reshape(-1, 1).flatten()
+posteriorsOverIterations = np.zeros([numIterations, numImputations, 3])
+posteriorsOverIterations[0, :, -1] = currentResidualVariance.reshape(-1, 1).flatten()
 numTotalDatapoints = len(stanfordHeartData['age'])
+conditionalErrors = np.zeros([numIterations, numCensoredEventTimes])
+predictedErrors = np.zeros([numIterations, numCensoredEventTimes])
+
 
 # Initialize the approximation to the posterior distribution by sampling the error variance
 # from the linear regression model that does not include the incomplete data
@@ -236,14 +237,14 @@ for iiImputation in range(numImputations):
 
     varStar = currentResidualVariance[iiImputation]
     covarianceMatrix = np.linalg.inv(varStar * designMatrix.T @ designMatrix) 
-    tempBetaStars = np.random.multivariate_normal([beta0, beta1], covarianceMatrix, 1).reshape(1, -1)
-    jointPosteriorApprox[iiImputation, 0:2] = tempBetaStars
+    tempBetaStars = np.random.multivariate_normal([init_beta_0, init_beta_1], covarianceMatrix, 1).reshape(1, -1)
+    posteriorsOverIterations[0, iiImputation, 0:2] = tempBetaStars
 
 
 ## Now that you have initialized the posterior approximation, you can start the iterative algorithm
 
-augmentedSurvivalTimes = np.zeros([numCensoredEventTimes, numImputations]) ## row = data point, column = imputation number
-quantiles = np.array([.025,.50, .975])
+augmentedSurvivalTimes = np.zeros([numIterations, numCensoredEventTimes, numImputations]) ## row = data point, column = imputation number
+quantiles = np.array([.025, .50, .975])
 convergenceBeta0 = np.zeros([len(quantiles), numIterations])
 convergenceBeta1 = np.zeros([len(quantiles), numIterations])
 convergenceSigmaSq = np.zeros([len(quantiles), numIterations])
@@ -256,27 +257,26 @@ for iiIteration in range(numIterations):
 
     for jjImputation in range(numImputations):
 
-        # Randomly select from the mixture of posterior distributions
+        # Randomly select theta from the mixture of posterior distributions
 
         randomIndex = random.randint(0, numImputations - 1)
-        thetaStar = jointPosteriorApprox[randomIndex, :]
-        sigmaSqStar = thetaStar[-1]
-        beta0Star = thetaStar[0]
-        beta1Star = thetaStar[1]
+        beta_0_star, beta_1_star, sigma_sq_star = posteriorsOverIterations[iiIteration, randomIndex, :]
 
         # Generate the augmented data by sampling errors and adding to right censored event time
 
         for kkCensoredEventTime in range(numCensoredEventTimes):
 
-            predictedSurvivalTime = (beta0Star + beta1Star * aliveAge[kkCensoredEventTime])
-            predictedError = predictedSurvivalTime - logAliveCensoredEventTimes[kkCensoredEventTime]
-            drawFromConditionalErroDistribution = np.random.normal(0, sigmaSqStar)
+            predictedSurvivalTime = (beta_0_star + beta_1_star * aliveAge[kkCensoredEventTime])
+            norm_predicted_error = (logAliveCensoredEventTimes[kkCensoredEventTime] - predictedSurvivalTime) / np.sqrt(sigma_sq_star)
+            predictedErrors[iiIteration, kkCensoredEventTime] = norm_predicted_error
+            conditional_error = np.random.normal()
 
-            while drawFromConditionalErroDistribution < predictedError:
+            while conditional_error < norm_predicted_error:
 
-                drawFromConditionalErroDistribution = np.random.normal(0, sigmaSqStar)
+                conditional_error = np.random.normal()
 
-            augmentedSurvivalTimes[kkCensoredEventTime, jjImputation] = predictedSurvivalTime + drawFromConditionalErroDistribution
+            conditionalErrors[iiIteration, kkCensoredEventTime] = conditional_error
+            augmentedSurvivalTimes[iiIteration, kkCensoredEventTime, jjImputation] = logAliveCensoredEventTimes[kkCensoredEventTime] + (conditional_error * np.sqrt(sigma_sq_star))
 
         # Update the approximation to the posterior 
         # Randomly select the augmented data to use, then do linear regression, then sample error variance, then beta0 and beta1
@@ -284,7 +284,7 @@ for iiIteration in range(numIterations):
     for jjImputation in range(numImputations):
 
         randomIndex = random.randint(0, numImputations - 1)
-        tempAugmentedData = augmentedSurvivalTimes[:, randomIndex]
+        tempAugmentedData = augmentedSurvivalTimes[iiIteration, :, randomIndex]
         tempAugmentedDesignMatrix = np.append(np.ones([numCensoredEventTimes, 1]), aliveAge.reshape(-1, 1), 1)
         tempTotalDesignMatrix = np.append(designMatrix, tempAugmentedDesignMatrix, 0)
         tempAugmentedSurvivalTimes = np.append(logDeadSurvivalTimes.reshape(-1, 1), tempAugmentedData.reshape(-1, 1), 0)
@@ -302,43 +302,146 @@ for iiIteration in range(numIterations):
 
         tempCovarianceMatrix = np.linalg.inv(sigmaSquaredStar * tempTotalDesignMatrix.T @ tempTotalDesignMatrix) 
         betasStar = np.random.multivariate_normal([beta0, beta1], tempCovarianceMatrix, 1).reshape(1, -1)
-        jointPosteriorApprox[iiImputation, -1] = sigmaSquaredStar
-        jointPosteriorApprox[iiImputation, 0:2] = betasStar
 
-    convergenceBeta0[:, iiIteration] = np.quantile(jointPosteriorApprox[:, 0], quantiles, axis = 0)
-    convergenceBeta1[:, iiIteration] = np.quantile(jointPosteriorApprox[:, 1], quantiles, axis = 0)
-    convergenceSigmaSq[:, iiIteration] = np.quantile(jointPosteriorApprox[:, -1], quantiles, axis = 0)
-            
-## Each iteration gives you an approximation to the posterior distribution
-## Impute the m = 500 values for augmented data, then with the augmented data, sample from the mixture
-## of posterior distributions (randomly sample augmented data, use that to calculate and sample from the posterior)
+        if iiIteration < numIterations - 1:
+
+            posteriorsOverIterations[iiIteration + 1, jjImputation, -1] = sigmaSquaredStar
+            posteriorsOverIterations[iiIteration + 1, jjImputation, 0:2] = betasStar
+
+convergenceBeta0 = np.quantile(posteriorsOverIterations[:, :, 0], quantiles, axis = 0)
+convergenceBeta1 = np.quantile(posteriorsOverIterations[:, :, 1], quantiles, axis = 0)
+convergenceSigmaSq = np.quantile(posteriorsOverIterations[:, :, 2], quantiles, axis = 0)
 ```
 
     Iteration:  0
     Iteration:  10
     Iteration:  20
-    Iteration:  30
-    Iteration:  40
 
 
-We can see below that the augmented and non-augmented posterior distributions for the y-intercept and the slope are in fact different. The augmented posteriors have increased variance (in both variables), and have slightly different locations. In the case where we only have 20 true observations, and 28 incomplete observations, the data augmentation algorithm provides a way to utilize the missing data to our advantage. 
+
+```python
+# Plot imputations for the last augmented posterior 
+
+num_images = 200
+image_nums = [int(temp_image) for temp_image in np.linspace(0, numImputations - 1, num_images)]
+xlims = [np.min(posteriorsOverIterations[-1, :, 1]) - np.std(posteriorsOverIterations[-1, :, 1]), 
+              np.max(posteriorsOverIterations[-1, :, 1]) + np.std(posteriorsOverIterations[-1, :, 1])]
+ylims = [np.min(posteriorsOverIterations[-1, :, 0]) - np.std(posteriorsOverIterations[-1, :, 0]), 
+              np.max(posteriorsOverIterations[-1, :, 0]) + np.std(posteriorsOverIterations[-1, :, 0])]
+x = np.linspace(15, 60, 1000)
+print('Saving images to write to gif')
+
+for ii_index, ii_image in enumerate(image_nums):
+
+    # Makes most sense to just plot the imputations, but should show a plot similar to the one showed in Tanner
+    # That shows the censored event times being augmented by the residual imputations
+
+    plt.figure(figsize = (14, 6))
+    plt.subplot(1, 2, 1)
+    plt.scatter(aliveAge, augmentedSurvivalTimes[-1, :, ii_image], color = 'red', label = 'Imputed survival time')
+    plt.scatter(deadAge, logDeadSurvivalTimes, color = 'black', label = 'Known survival time')
+    tempBeta0 = posteriorsOverIterations[-1, ii_image, 0]
+    tempBeta1 = posteriorsOverIterations[-1, ii_image, 1]
+    plt.plot(tempBeta0 + tempBeta1 * x, color = 'red')
+    plt.xlim(15, 60)
+    plt.ylim(0, 15)
+    plt.title('Augmented Survival Times and Corresponding Regression Line')
+    plt.text(0.95, 0.95, f'Imputation {ii_image}', horizontalalignment='right', 
+             verticalalignment='top', transform=plt.gca().transAxes)
+    plt.xlabel('Age')
+    plt.ylabel('Log Survival Time')
+    plt.legend(loc = 'upper left')
+
+    plt.subplot(1, 2, 2)
+    plt.scatter(posteriorsOverIterations[-1, :ii_image, 1], posteriorsOverIterations[-1, :ii_image, 0], color = 'black')
+    plt.scatter(posteriorsOverIterations[-1, ii_image, 1], posteriorsOverIterations[-1, ii_image, 0], color = 'red')
+    plt.xlabel('$\\beta_1$')
+    plt.ylabel('$\\beta_0$')
+    plt.xlim(xlims)
+    plt.ylim(ylims)
+    plt.title('Samples from Augmented Joint Posterior')
+    plt.text(0.95, 0.95, f'Imputation {ii_image}', horizontalalignment='right', 
+             verticalalignment='top', transform=plt.gca().transAxes, fontsize = 'medium')
+    plt.savefig(f'augmented_survival_times/temp_fig{ii_index:.0f}.png')
+    plt.close()
+
+images = []
+filenames = [f'augmented_survival_times/temp_fig{ii_image:.0f}.png' for ii_image in range(num_images)]
+
+for filename in filenames:
+
+    images.append(imageio.imread(filename))
+
+print('Writing gif')
+imageio.mimsave('imputed_survival_times.gif', images)
+```
+
+    Saving images to write to gif
+    Writing gif
+
+
+We demonstrate how data augmentation works for a fixed iteration of the algorithm. Over 5000 imputations, the plot on the left shows the augmented survival times in red, and the known survival times in black. The corresponding regression line sampled from the augmented posterior is shown in red as well. It corresponds to the red dot on the right. 
+
+![theta sampler imputations](imputed_survival_times.gif)
+
+
+```python
+## Plot the posterior approximations sequentially by iteration 
+
+num_images = numIterations
+image_nums = [int(temp_image) for temp_image in np.linspace(0, numIterations - 1, num_images)]
+xlims = [np.min(posteriorsOverIterations[:, :, 1]) - 2 * np.std(posteriorsOverIterations[:, :, 1]), 
+              np.max(posteriorsOverIterations[:, :, 1]) + 2 * np.std(posteriorsOverIterations[:, :, 1])]
+ylims = [np.min(posteriorsOverIterations[:, :, 0]) - 2 * np.std(posteriorsOverIterations[:, :, 0]), 
+              np.max(posteriorsOverIterations[:, :, 0]) + 2 * np.std(posteriorsOverIterations[:, :, 0])]
+print('Saving images to write to gif')
+
+for ii_index, ii_image in enumerate(image_nums):
+
+    plt.scatter(posteriorsOverIterations[ii_image, :, 1], posteriorsOverIterations[ii_image, :, 0], color = 'black')
+    plt.xlabel('$\\beta_1$')
+    plt.ylabel('$\\beta_0$')
+    plt.xlim(xlims)
+    plt.ylim(ylims)
+    plt.title('Samples from Augmented Joint Posteriors over Time')
+    plt.text(0.95, 0.95, f'Iteration {ii_image}', horizontalalignment='right', 
+             verticalalignment='top', transform=plt.gca().transAxes)
+    plt.savefig(f'theta_sampler_iterations/temp_fig{ii_index:.0f}.png')
+    plt.close()
+
+images = []
+filenames = [f'theta_sampler_iterations/temp_fig{ii_image:.0f}.png' for ii_image in range(num_images)]
+
+for filename in filenames:
+
+    images.append(imageio.imread(filename))
+
+print('Writing gif')
+imageio.mimsave('theta_sampler_iterations.gif', images, duration = .25)
+```
+
+    Saving images to write to gif
+    Writing gif
+
+
+We also demonstrate below how the augmented posterior changes over each iteration of the algorithm. In our case, the algorithm converges in just a handful of iterations. The augmented posteriors do not change much after the first few iterations. 
+
+![theta sampler iterations](theta_sampler_iterations.gif)
+
+We can see below that the augmented and non-augmented posterior distributions for the y-intercept and the slope are in fact different. The augmented posteriors have increased variance (in both variables), and have substantially different locations. The data augmentation algorithm provides a way to utilize the missing data to our advantage. 
 
 
 ```python
 # Plot the joint distribution of beta0 and beta1 together
 
-beta0Distribution = jointPosteriorApprox[:, 0]
-beta1Distribution = jointPosteriorApprox[:, 1]
+beta0Distribution = posteriorsOverIterations[-1, :, 0]
+beta1Distribution = posteriorsOverIterations[-1, :, 1]
 
-print('Covariance matrix for augmented joint posterior: ', np.cov(beta0Distribution, beta1Distribution))
-
-plt.scatter(beta1Distribution, beta0Distribution, color = 'black')
+plt.figure(figsize = (12, 6))
+plt.scatter(beta1Distribution, beta0Distribution, color = 'red', label = 'Augmented')
 plt.xlabel('$\\beta_1$')
 plt.ylabel('$\\beta_0$')
-plt.xlim(-.125, .1)
-plt.ylim(-2, 10)
-plt.title('Augmented Posterior Joint Distribution Approximation for $\\beta_0$ and $\\beta_1$')
-plt.show()
+plt.title('Joint Posteriors for $\\beta_0$ and $\\beta_1$')
 
 model.fit(deadAgeReshaped, logDeadSurvivalTimesReshaped)
 beta0 = model.intercept_[0]
@@ -348,7 +451,6 @@ residuals = yHat - logDeadSurvivalTimesReshaped # Flatten the predicted values
 nonAugmentedResidualVariance = np.var(residuals)
 numSamples = 5000
 nonAugmentedPosteriorApprox = np.zeros([numSamples, 3])
-
 
 for iiSample in range(numSamples):
 
@@ -360,35 +462,17 @@ for iiSample in range(numSamples):
 
 beta0Distribution = nonAugmentedPosteriorApprox[:, 0]
 beta1Distribution = nonAugmentedPosteriorApprox[:, 1]
-plt.scatter(beta1Distribution, beta0Distribution, color = 'black')
+plt.scatter(beta1Distribution, beta0Distribution, color = 'black', label = 'Nonaugmented')
 plt.xlabel('$\\beta_1$')
 plt.ylabel('$\\beta_0$')
-plt.xlim(-.125, .1)
-plt.ylim(-2, 10)
-plt.title('Nonaugmented Posterior Joint Distribution Approximation for $\\beta_0$ and $\\beta_1$')
+plt.legend()
 plt.show()
-
-print('Covariance matrix for nonaugmented joint posterior: ', np.cov(beta0Distribution, beta1Distribution))
 ```
 
-    Covariance matrix for augmented joint posterior:  [[ 1.15037983e+00 -2.37347355e-02]
-     [-2.37347355e-02  5.01730642e-04]]
-
-
 
     
-![png](README_files/README_10_1.png)
+![png](README_files/README_13_0.png)
     
-
-
-
-    
-![png](README_files/README_10_2.png)
-    
-
-
-    Covariance matrix for nonaugmented joint posterior:  [[ 5.57775992e-01 -1.14902970e-02]
-     [-1.14902970e-02  2.42616603e-04]]
 
 
 We plot the mean regression lines from the augmented and non-augmented posterior distributions below to better visualize the difference in location and spread of the two posteriors. 
@@ -398,8 +482,8 @@ We plot the mean regression lines from the augmented and non-augmented posterior
 # Plot the mean regression lines for augmented and nonaugmented posterior distributions
 
 x = np.linspace(np.min(deadAge), np.max(deadAge), 1000)
-meanAugmentedB0 = np.mean(jointPosteriorApprox[:, 0])
-meanAugmentedB1 = np.mean(jointPosteriorApprox[:, 1])
+meanAugmentedB0 = np.mean(posteriorsOverIterations[-1, :, 0])
+meanAugmentedB1 = np.mean(posteriorsOverIterations[-1, :, 1])
 plt.plot(x, meanAugmentedB0 + meanAugmentedB1 * x, color = 'r', label = 'Augmented')
 plt.xlabel('Age')
 plt.ylabel('Log Survival Time')
@@ -409,44 +493,30 @@ meanNonaugmentedB0 = np.mean(nonAugmentedPosteriorApprox[:, 0])
 meanNonaugmentedB1 = np.mean(nonAugmentedPosteriorApprox[:, 1])
 plt.plot(x, meanNonaugmentedB0 + meanNonaugmentedB1 * x, color = 'blue', label = 'Nonaugmented')
 plt.legend()
-plt.show()
-
-# Plot the exponential transformation
-
-plt.plot(x, np.exp(meanAugmentedB0 + meanAugmentedB1 * x), color = 'r', label = 'Augmented')
-plt.plot(x, np.exp(meanNonaugmentedB0 + meanNonaugmentedB1 * x), color = 'blue', label = 'Nonaugmented')
-plt.xlabel('Age')
-plt.ylabel('Survival Time')
-plt.legend()
-plt.title('Exponential Transformation for Nonaugmented and Augmented Regression Lines')
+plt.xlim(15, 60)
+plt.ylim(0, 15)
 plt.show()
 ```
 
 
     
-![png](README_files/README_12_0.png)
+![png](README_files/README_15_0.png)
     
 
 
-
-    
-![png](README_files/README_12_1.png)
-    
-
-
-We sample the augmented and non-augmented marginal posterior distributions below for comparison. The marginals deviate from their respective counterparts slightly but noticeably, except for the error distributions. 
+We sample the augmented and non-augmented marginal posterior distributions below for comparison. The marginals deviate from their respective counterparts slightly but noticeably. 
 
 
 ```python
-augmentedBeta1Posterior = jointPosteriorApprox[:, 1]
-augmentedBeta0Posterior = jointPosteriorApprox[:, 0]
-augmentedSigmaSqPosterior = jointPosteriorApprox[:, -1]
+augmentedBeta1Posterior = posteriorsOverIterations[-1, :, 1]
+augmentedBeta0Posterior = posteriorsOverIterations[-1, :, 0]
+augmentedSigmaSqPosterior = posteriorsOverIterations[-1, :, -1]
 
 # Sample the posterior for the nonaugmented data
 
-plt.hist(augmentedBeta1Posterior, bins = 30, density = True, color = 'skyblue', edgecolor = 'black', alpha = .5, label = 'augmented')
+plt.hist(augmentedBeta1Posterior, bins = 30, density = True, color = 'red', edgecolor = 'black', alpha = .5, label = 'augmented')
 nonAugmentedBeta1Posterior = nonAugmentedPosteriorApprox[:, 1]
-plt.hist(nonAugmentedBeta1Posterior, bins = 30, density = True, color = 'red', edgecolor = 'black', alpha = .5, label = 'nonaugmented')
+plt.hist(nonAugmentedBeta1Posterior, bins = 30, density = True, color = 'skyblue', edgecolor = 'black', alpha = .5, label = 'nonaugmented')
 plt.rc('text', usetex = True)
 plt.xlabel('$\\beta_1$')
 plt.ylabel('Density')
@@ -454,9 +524,9 @@ plt.title('Comparing Posterior Distributions for Slope of Linear Regression Mode
 plt.legend()
 plt.show()
 
-plt.hist(augmentedBeta0Posterior, bins = 30, density = True, color = 'skyblue', edgecolor = 'black', alpha = .5, label = 'augmented')
+plt.hist(augmentedBeta0Posterior, bins = 30, density = True, color = 'red', edgecolor = 'black', alpha = .5, label = 'augmented')
 nonAugmentedBeta0Posterior = nonAugmentedPosteriorApprox[:, 0]
-plt.hist(nonAugmentedBeta0Posterior, bins = 30, density = True, color = 'red', edgecolor = 'black', alpha = .5, label = 'nonaugmented')
+plt.hist(nonAugmentedBeta0Posterior, bins = 30, density = True, color = 'skyblue', edgecolor = 'black', alpha = .5, label = 'nonaugmented')
 plt.rc('text', usetex = True)
 plt.xlabel('$\\beta_0$')
 plt.ylabel('Density')
@@ -464,9 +534,9 @@ plt.title('Comparing Posterior Distributions for Intercept of Linear Regression 
 plt.legend()
 plt.show()
 
-plt.hist(augmentedSigmaSqPosterior, bins = 30, density = True, color = 'skyblue', edgecolor = 'black', alpha = .5, label = 'augmented')
+plt.hist(augmentedSigmaSqPosterior, bins = 30, density = True, color = 'red', edgecolor = 'black', alpha = .5, label = 'augmented')
 nonAugmentedSigmaSqPosterior = nonAugmentedPosteriorApprox[:, -1]
-plt.hist(nonAugmentedSigmaSqPosterior, bins = 30, density = True, color = 'red', edgecolor = 'black', alpha = .5, label = 'nonaugmented')
+plt.hist(nonAugmentedSigmaSqPosterior, bins = 30, density = True, color = 'skyblue', edgecolor = 'black', alpha = .5, label = 'nonaugmented')
 plt.rc('text', usetex = True)
 plt.xlabel('$\\sigma^2$')
 plt.ylabel('Density')
@@ -477,18 +547,18 @@ plt.show()
 
 
     
-![png](README_files/README_14_0.png)
+![png](README_files/README_17_0.png)
     
 
 
 
     
-![png](README_files/README_14_1.png)
+![png](README_files/README_17_1.png)
     
 
 
 
     
-![png](README_files/README_14_2.png)
+![png](README_files/README_17_2.png)
     
 
