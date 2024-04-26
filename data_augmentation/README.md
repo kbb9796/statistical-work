@@ -104,7 +104,7 @@ print('Saving images to write to gif')
 for ii_index, ii_image in enumerate(image_nums):
 
     fig, ax1 = plt.subplots()
-    ax1.set_xlabel('Iteration')
+    ax1.set_xlabel('Imputation')
     ax1.set_ylabel('$\\theta$', color = 'black')
     ax1.plot(theta_sample[:ii_image], color = 'black')
     ax1.set_ylim([0, 1])
