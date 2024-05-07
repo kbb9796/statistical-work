@@ -85,6 +85,7 @@ def seq_importance_resampling(params, num_particles, num_time_steps, spike_count
     particles = np.zeros([num_particles, num_time_steps])
     temp_weights = np.zeros([num_particles])
     weights_hist = {}
+    particle_history = {}
 
     C = params['C']
     baseline = params['baseline']
@@ -116,8 +117,9 @@ def seq_importance_resampling(params, num_particles, num_time_steps, spike_count
 
         resampled_indices = np.random.choice(num_particles, num_particles, p = norm_weights)
         particles[:, 0 : ii_time_step + 1] = particles[resampled_indices, 0 : ii_time_step + 1]
+        particle_history[str(ii_time_step + 1)] = particles[:, : ii_time_step + 1]
 
-    return particles
+    return particles, particle_history
 ```
 
 We generate the latent process and observed data below. 
@@ -171,25 +173,77 @@ Now, we implement SIR to recover the latent trajectory.
 params = {'beta' : beta, 'var' : var, 'intercept' : intercept, 'C' : C, 'baseline' : baseline, 'threshold' : threshold}
 num_particles = 2000
 num_time_steps = len(state_trajectory)
-particles = seq_importance_resampling(params, num_particles, num_time_steps, spike_counts)
+particles, particle_history = seq_importance_resampling(params, num_particles, num_time_steps, spike_counts)
 ```
+
+    Time step 0
+    Time step 50
+    Time step 100
+    Time step 150
+    Time step 200
+    Time step 250
+    Time step 300
+    Time step 350
+    Time step 400
+    Time step 450
+    Time step 500
+    Time step 550
+    Time step 600
+    Time step 650
+    Time step 700
+    Time step 750
+
 
 
 ```python
-## Plot the particle trajectories 
+import imageio
 
-np.shape(particles)
-plt.plot(bin_size * np.linspace(0, np.shape(particles)[1], np.shape(particles)[1]), np.transpose(particles), linewidth = 1)
-plt.title('Samples from the Posterior Distribution of the Latent State')
-plt.xlabel('Time (seconds)')
-plt.ylabel('State')
-plt.show()
+num_images = 200
+num_particles_to_plot = 200
+image_nums = [int(temp_image) for temp_image in np.linspace(1, num_time_steps - 2, num_images)]
+
+for ii_index, ii_image in enumerate(image_nums):
+
+    if np.mod(ii_index, 25) == 0:
+
+        print('Plot:', ii_index)
+
+    temp_particles = np.transpose(particle_history[str(ii_image)][: num_particles_to_plot, :])
+    temp_time = np.transpose(bin_size * np.linspace(0, np.shape(temp_particles)[0], np.shape(temp_particles)[0]))
+    plt.plot(temp_time, temp_particles)
+    plt.xlabel('Time (s)')
+    plt.ylabel('State')
+    plt.xlim(0, bin_size * num_time_steps)
+    plt.ylim(np.max(particles) - 2, np.min(particles) + 2)
+    plt.title('Samples From Posterior of Latents')
+    plt.savefig(f'latents_over_time/temp_fig{ii_index:.0f}.png')
+    plt.close()
 ```
 
+    Plot: 0
+    Plot: 25
+    Plot: 50
+    Plot: 75
+    Plot: 100
+    Plot: 125
+    Plot: 150
+    Plot: 175
 
-    
-![png](README_files/README_7_0.png)
-    
+
+
+```python
+images = []
+filenames = [f'latents_over_time/temp_fig{ii_image:.0f}.png' for ii_image in range(num_images)]
+
+for filename in filenames:
+
+    images.append(imageio.imread(filename))
+
+print('Writing gif')
+imageio.mimsave('particle_filter.gif', images)
+```
+
+    Writing gif
 
 
 
@@ -213,20 +267,20 @@ plt.plot(time, state_trajectory, label = 'True Trajectory', color = 'blue')
 plt.plot(time, median_trajectory, label = 'Median Trajectory', color = 'red')
 plt.xlabel('Time (seconds)')
 plt.ylabel('State')
-plt.legend()
+plt.legend(loc = 'lower left')
 plt.show()
 
 ```
 
 
     
-![png](README_files/README_8_0.png)
+![png](README_files/README_9_0.png)
     
 
 
 
     
-![png](README_files/README_8_1.png)
+![png](README_files/README_9_1.png)
     
 
 
@@ -281,7 +335,7 @@ plt.legend()
 plt.show()
 
 print('.05 quantile for the distribution of SSEs for randomly simulated trajectories is {:.2f}'.format(np.quantile(dist_sse, .05)))
-print('Posterior mode SSE is {:.2f}'.format(median_sse))
+print('Posterior median SSE is {:.2f}'.format(median_sse))
 
 if median_sse <= np.quantile(dist_sse, .05):
 
@@ -295,13 +349,13 @@ else:
 
 
     
-![png](README_files/README_10_0.png)
+![png](README_files/README_11_0.png)
     
 
 
-    .05 quantile for the distribution of SSEs for randomly simulated trajectories is 304962.78
-    Posterior mode SSE is 18732.95
-    The posterior mode trajectory has statistically significant sum of squared errors
+    .05 quantile for the distribution of SSEs for randomly simulated trajectories is 521691.14
+    Posterior mode SSE is 30946.25
+    The posterior median trajectory has statistically significant sum of squared errors
 
 
 Now, we generate observed data from the median of the posterior distribution of the latent trajectory. 
@@ -322,7 +376,7 @@ plt.figure(figsize=(fig_width, fig_height))
 plt.subplot(2, 1, 1)
 plt.vlines(pred_arrival_times, ymin = 0, ymax = 1, linewidth = .5, color = 'red')
 plt.xlabel('Time (seconds)')
-plt.title('Sample from Predicted Spikes using Posterior Mode State Trajectory')
+plt.title('Sample from Predicted Spikes using Posterior Median State Trajectory')
 plt.gca().yaxis.set_visible(False)
 plt.gca().xaxis.set_visible(False)
 
@@ -335,7 +389,7 @@ plt.gca().yaxis.set_visible(False)
 
 
     
-![png](README_files/README_12_0.png)
+![png](README_files/README_13_0.png)
     
 
 
@@ -366,8 +420,8 @@ plt.show()
 
 
     
-![png](README_files/README_13_0.png)
+![png](README_files/README_14_0.png)
     
 
 
-We can see that SIR estimates the latent trajectory well enough to recreate the observed data fairly well on average. 
+We can see that SIR estimates the latent trajectory well enough to recreate the relative shape of the firing rates, though the predictions clearly undershoot the target on average. 
