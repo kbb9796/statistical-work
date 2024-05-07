@@ -22,3 +22,4 @@ Hopefully, the reader will gain an understanding of what statistical and mathema
 
 <img src="new_github_logo.gif" width = "400" height = "300"> <img src="data_augmentation/theta_sampler.gif" width = "400" height = "300"> 
 <img src="data_augmentation/imputed_survival_times_reg_line.gif" width = "400" height = "300"> <img src="data_augmentation/imputed_survival_times_joint.gif" width = "400" height = "300"> 
+<img src="simulated_annealing/tsp.gif" width = "400" height = "300"> 

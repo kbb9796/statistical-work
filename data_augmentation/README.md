@@ -187,10 +187,10 @@ deadIndices = stanfordHeartData.index[stanfordHeartData['survived'] == 'dead'].t
 
 # Truncate data
  
-# truncatedAlive = 28
-# truncatedDead = 15
-# aliveIndices = random.sample(aliveIndices, truncatedAlive)
-# deadIndices = random.sample(deadIndices, truncatedDead)
+truncatedAlive = 28
+truncatedDead = 28
+aliveIndices = random.sample(aliveIndices, truncatedAlive)
+deadIndices = random.sample(deadIndices, truncatedDead)
 deadSurvivalTimes = stanfordHeartData['survtime'][deadIndices]
 logDeadSurvivalTimes = np.array(np.log(deadSurvivalTimes))
 deadAge = np.array(stanfordHeartData['age'][deadIndices])
@@ -321,6 +321,8 @@ convergenceSigmaSq = np.quantile(posteriorsOverIterations[:, :, 2], quantiles, a
 
 ```python
 # Plot imputations for the last augmented posterior 
+
+## SAVE THE IMAGES SEPARATELY IN CODE CHUNK BELOW
 
 num_images = 200
 image_nums = [int(temp_image) for temp_image in np.linspace(0, numImputations - 1, num_images)]
