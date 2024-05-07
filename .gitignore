@@ -6,8 +6,8 @@
 
 # Ignore a directory and its contents
 
-data_augmentation/theta_sampler_joint
-data_augmentation/theta_sampler_iterations
-data_augmentation/augmented_survival_times
+data_augmentation/theta_sampler_joint/*.png
+data_augmentation/theta_sampler_iterations/*.png
+data_augmentation/augmented_survival_times/*.png
 sequential_importance_resampling/latents_over_time
 
