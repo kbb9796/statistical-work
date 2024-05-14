@@ -1,6 +1,6 @@
 # Data augmentation
 
-This is a test $\theta^*$ and $\theta^{*}$ and $\theta_*$ and $\theta_{*}$
+This is a test $\theta^\ast$ and $\theta^{\ast}$ and $\theta_\ast$ and $\theta_{\ast}$
 
 The data augmentation algorithm serves two purposes: (1) to simplify an intractable or unwieldy posterior, or (2) better approximate the posterior when we have "incomplete" data. I demonstrate both purposes below using real examples. But first, I explain how and why data augmentation works (both examples and explanation are adapted from Tanner, 1996). 
 
