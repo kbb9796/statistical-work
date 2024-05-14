@@ -1,10 +1,16 @@
 # Data augmentation
 
-The data augmentation algorithm serves two purposes: (1) to simplify the form of an intractable or unwieldy posterior distribution, or (2) better approximate the posterior in cases where we have "incomplete" data. Here, I demonstrate the former using an example adapted from Tanner, 1996. 
+The data augmentation algorithm serves two purposes: (1) to simplify an intractable or unwieldy posterior, or (2) better approximate the posterior when we have "incomplete" data. I demonstrate both purposes below using real examples. But first, I explain how and why data augmentation works (both examples and explanation are adapted from Tanner, 1996). 
+
+As explained above, sometimes evaluating or sampling $p(\theta | Y) might be too hard, or we would like a better evaluation when data are missing. So we augment the observed data $Y$ with latent variables $Z$. Assuming we can evaluate or sample the augmented posterior $p(\theta | Y, Z)$, we can integrate $Z$ out: $$p(\theta | Y) = \int_{Z} p(\theta | Y, Z)p(Z | Y) dz.$$ That is the posterior identity. To evaluate the integral above, we still need to calculate $p(Z | Y)$. We have $$p(Z | Y) = \int_{\Theta} p(Z | Y, \phi)p(\phi | Y)d\phi.$$ Note, we are integrating over $\Theta$, but with respect to $\phi$. That is the predictive identity. If we substitute the predictive identity into the posterior identity, and change the order of integration, we have the following equations: $$p(\theta | Y) = g(\theta) = \int_{\Theta} K(\theta, \phi)g(\phi)d\phi,$$ for $$K(\theta, \phi) = \int_{Z} p(\theta | Z, Y)p(\phi, Y)dZ.$$ Using successive substitution and Monte Carlo integration on $K(\theta, \phi)$, we have developed the following iterative scheme:
+
+a. Sample $\theta^{*}_{1}, ..., \theta^{*}_{m}$ from the current approximation to the posterior $p(\theta | Y)$
+b. Sample $z_1, ..., z_m$ from the current predictive distribution $p(Z | \theta^*, Y)$
+c. Update $p(\theta | Y)$ as the mixture of augmented posteriors, i.e. $p(\theta | Y) = \frac{1}{m} \sum_{j=1}^{m} p(\theta | z_j, Y).$ 
+
+We repeat these steps, and eventually, the approximation to the posterior distribution will converge to the real posterior. We demonstrate this process with examples and code below. 
 
 ## Simplifying the form of a posterior distribution
-
-As is the case for all implementations of data augmentation, we "complete" or augment the observed data with latent variables. Using both the observed and latent variables (the combination of which is referred to as augmented data), we update our approximation to the posterior distribution. We repeat these two steps until the posterior converges. A concrete example best demonstrates this process. 
 
 We consider the genetic linkage model. Suppose 197 animals are distributed into four categories as follows: $$y = (y_{1}, y_{2}, y_{3}, y_{4}) = (125, 18, 20, 34)$$ with cell probabilities $$(\frac{1}{2} + \frac{\theta}{4}, \frac{1 - \theta}{4}, \frac{1 - \theta}{4}, \frac{\theta}{4}).$$ Under a flat prior, the posterior distribution is $$p(\theta | y) \propto (2 + \theta)^{y_{1}}(1 - \theta)^{y_{2} + y_{3}}\theta^{y_4}.$$ Evaluating expectations of this function might be too complex for our liking. We should sample it instead. However, we have no way to sample this distribution directly either. We can simplify its form with data augmentation. 
 
@@ -321,8 +327,6 @@ convergenceSigmaSq = np.quantile(posteriorsOverIterations[:, :, 2], quantiles, a
 
 ```python
 # Plot imputations for the last augmented posterior 
-
-## SAVE THE IMAGES SEPARATELY IN CODE CHUNK BELOW
 
 num_images = 200
 image_nums = [int(temp_image) for temp_image in np.linspace(0, numImputations - 1, num_images)]
