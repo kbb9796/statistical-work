@@ -1,6 +1,6 @@
 
 ## Borel-Cantelli Lemma
 
-The Borel-Cantelli lemma is one of my favorite results in measure and probability theory. And we can prove it without too much work. 
+The Borel-Cantelli lemma is one of my favorite results in measure and probability theory. I prove the lemma below. 
 
 ![borel-cantelli proof](borel_cantelli.png)
