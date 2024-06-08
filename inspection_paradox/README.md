@@ -6,3 +6,7 @@ every 5 minutes on average, someone waiting to get on the bus will wait longer t
 feels true from experience. I prove this fact below. 
 
 ![inspection paradox proof](inspection_proof.png)
+
+Thus, the holding time for the $X_t + 1$'th arrival is at least as large as the average first holding time, which is equal to the average holding time. 
+Intuitively, if there is any variance in the distribution of holding times, the holding time for the 
+$X_t + 1$'th arrival is strictly greater than the average holding time because the longer interarrival periods are oversampled, i..e there is sampling bias. 
