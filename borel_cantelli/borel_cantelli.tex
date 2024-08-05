@@ -10,10 +10,11 @@ $\sum\limits_{n=1}^{\infty} \mu(E_n) < \infty$, \\ then $\mu(\limsup\limits_{n\r
 
 \begin{proof}
 By definition, we have $$\limsup\limits_{n\rightarrow\infty} E_n = \bigcap\limits_{n=1}^{\infty} \bigcup\limits_{k=n}^{\infty} E_k.$$
-To tidy things up, we define $$ A_n := \bigcup\limits_{k = n}^{\infty} E_k,$$ so, substituting we get 
+To tidy things up, we define the inner union as $$ A_n := \bigcup\limits_{k = n}^{\infty} E_k$$.
+Substituting our newly defined $A_n$ into the equation, we can write. 
 $$\limsup\limits_{n\rightarrow\infty} E_n = \bigcap\limits_{n=1}^{\infty} A_n.$$ 
-Of course, since we are only removing elements from $\{A_n\}$ as $n$ increases, we have
-$A_1 \supset A_2 \supset A_3 ... $. Thus, by continuity from above--a basic property of measure--we can write 
+Now we note the descending structure of $A_n$. Since we only remove elements from $\{A_n\}$ as $n$ increases, we have
+$A_1 \supset A_2 \supset A_3 ... $. Thus, by continuity from above (a property of measure) we can write 
 
 \begin{align*}
     \mu(\limsup\limits_{n\rightarrow\infty} E_n) &= \mu(\bigcap\limits_{n=1}^{\infty} A_n) \\
@@ -22,10 +23,11 @@ $A_1 \supset A_2 \supset A_3 ... $. Thus, by continuity from above--a basic prop
     &\leq \lim_{n\rightarrow\infty}(\sum\limits_{k = n}^{\infty} \mu(E_k)) &&\text{(by countable subadditivity property of measure)} \\
     &= 0.
 \end{align*}
-Note that the last step follows from the fact that $\sum\limits_{n=1}^{\infty} \mu(E_n)$ converges. Meaning, for any $\epsilon > 0$, 
-there exists some $N$ such that for each $k \geq N$, we have $\sum\limits_{k = N}^{\infty} \mu(E_k) < \epsilon$. 
-Hence, we can make the tail end of the sum arbitrarily small. Therefore, the limit in the second to last line converges to 0. 
-And lastly, by non-negativity of measure, we have the limit superior bounded above and below by 0. Thus, \\
-$\mu(\limsup\limits_{n\rightarrow\infty} E_n) = 0$. $\qedhere$
+The last line above follows intuitively. We are given that $\sum\limits_{n=1}^{\infty} \mu(E_n)$ converges, so the tail end of the sum must tend to 0. 
+More formally, but briefly: by definition, the corresponding partial sums $S_1, S_2, S_3, ...$ must converge, say, to $L$. Thus, for any $\epsilon > 0$, 
+there exists some $N$ such that for $k - 1 = N$, we have $|S_{k-1} - L| < \epsilon$. Decomposing $L$ into the k-1th partial sum and the remaining tail, 
+we subtract the two identical partial sums. We are left with the tail $\sum\limits_{k = N}^{\infty} \mu(E_k) < \epsilon$. This is the limit in the second to last line,
+and it converges to 0. To complete the proof, by non-negativity of measure, we have the limit superior bounded below by 0, too. 
+Thus, $\mu(\limsup\limits_{n\rightarrow\infty} E_n) = 0$. $\qedhere$ \\
 \end{proof}
 \end{document}
