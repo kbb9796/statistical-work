@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb, mathtools}
+\usepackage{geometry} % Page layout
+\geometry{a4paper, margin=1in} % Adjust margins if needed
+
+\begin{document}
+
+\textbf{Remember:} a measure preserving transformation is some function $T : X \rightarrow X$ on a set X such that
+$\mu(x) = \mu(T^{-1}x)$ for $x \in X$.
+\\
+\textbf{Also remember:} an element $x \in B$ is said to be \textit{B-recurrent} if there exists some $k \geq 1$
+such that $T^{k}x \in B$. 
+\\
+\textbf{Claim.} For probability space ($X$, $\sigma$, $\mu$), if $B \in \sigma$ and $\mu(B) > 0$, then almost every $x \in B$ is B-recurrent, i.e. returns to B at least once. 
+\begin{proof}
+We will prove the claim via contradiction. Let $F$ be the set of all elements in $B$ that are not B-current.
+We want to show that $\mu(F) = 0$. We have $$ F = \{x \in B : T^{k}x \not\in B\ \mathrm{for\ any\ k \geq 1\}}.$$ 
+So $F \cap T^{-k}x = \emptyset$ for any $k \geq 1$. By construction, you can't reach a point in $F$ from another point in $F$ via transformations. 
+It follows that $T^{-l}F \cap T^{-m}F = \emptyset$ for $l, m \geq 1$ and $l \neq m$. Concretely, the preimages of $F$ under at least one transformation $T$ 
+don't share any elements (if the preimages did share elements, it would mean that you could get from $F$ back into $F$ in $|m - l|$ transformations, but
+we've constructed $F$ precisely so you can't return to it). 
+Thus, $F$, $T^{-1}F$, $T^{-2}F$, $...$ are pairwise disjoint. Since T is measure preserving, $\mu(F) = \mu(T^{-k})$ for any $k \geq 1$. 
+Now we assume that $\mu(F) > 0$ to get our desired contradiction. 
+If $\mu(F) > 0$, then $$\mu(\bigcup\limits_{k=1}^{\infty} T^{-k}F) \leq \sum\limits_{k = 1}^{\infty} \mu(T^{-k}F) = \infty$$ by countable subadditivity.
+Since we're working on a probability space, we know $$\bigcup\limits_{k=1}^{\infty}T^{-k}F \subseteq X$$ and following this to its end, we get the contradiction
+$$1 = \mu(X) \geq \mu(\bigcup\limits_{k=1}^{\infty}T^{-k}F) = \infty.$$ By contradiction, it must be that $\mu(F) = 0$. 
+Almost every element of $B$ is B-recurrent. 
+
+\end{proof}
+\end{document}
