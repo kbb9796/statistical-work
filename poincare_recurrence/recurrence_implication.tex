@@ -9,11 +9,10 @@ The Poincare Recurrence Theorem implies that almost every element in $B$ returns
 $T^{n_i}x \in B$ almost everywhere. 
 \begin{proof}
 Let $$D = \{x \in B : T^{k}x \in B\ \mathrm{for\ finitely\ many\ k \geq 1\}}.$$ 
-Meaning, to be in $D$ you are an element of the set $B$ such that after enough transformations you never return to $B$. 
-We can rewrite the condition of $D$ in terms of our familiar set $F$ comprised of the elements of $B$ that never return to $B$, 
+Meaning, to be in $D$ you are an element of the set $B$ such that after a finite number of transformations you never return to $B$. 
+We can rewrite the condition of $D$ in terms of our familiar set $F$ which is comprised of the elements of $B$ that never return to $B$,
 $$D = \{x \in B\ : T^{k}x \in F\ \mathrm{for\ some\ k \geq 0\}}.$$
-In words, if you are an element of $D$, you are an element of $B$ with the extra condition that you never return to $B$ after some finite amount
-of transformations. Therefore $$D \subseteq \bigcup\limits_{k=0}^{\infty} T^{-k}F.$$ Thus, by monotonicity of measure, we have
+So $D$ is a subset of the union of the successive preimages of F under T $$D \subseteq \bigcup\limits_{k=0}^{\infty} T^{-k}F.$$ Thus, by monotonicity of measure, we have
 $$ \mu(D) \leq \mu(\bigcup\limits_{k=0}^{\infty} T^{-k}F) = 0$$ (where we proved the union of the preimages of repeated transformations had measure 0 
 in the proof of Poincare's Recurrence Theorem).
 Hence, almost all $x \in B$ return to 
