@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb, dsfont}
+\usepackage{geometry} % Page layout
+\geometry{a4paper, margin=1in} % Adjust margins if needed
+\begin{document}
+ 
+\noindent \textbf{Claim.} The limit 
+$$q_{ij} = \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} p_{ij}^{(k)},$$ 
+exists and is well defined for each $i,j \in \{0, 1, ..., N - 1\}$ where the quantity $p_{ij}^{(k)}$
+is the $k$-step transition probability from state $i$ to state $j$. 
+
+\begin{proof} 
+    First we note that the left-shift transformation T is measure preserving. By the ergodic theorem, we have
+    \begin{align*}
+        \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} \mathds{1}_{\{x : x_k = j\}}(x) =  
+        \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} \mathds{1}_{\{x : x_0 = j\}}(T^{k}x) = f^*(x), 
+    \end{align*}
+    such that $f^*$ is integrable. Using the above equality, and the fact that $\frac{1}{n} \sum\limits_{k=0}^{n-1} \mathds{1}_{\{x : x_0 = j\}} \leq 1$
+    for all $n$, we can use the dominated convergence theorem to rearrange the formula for $q_{ij}$. 
+    \begin{align*}
+        q_{ij} &= \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} p_{ij}^{(k)} \\
+        &= \frac{1}{\pi_i} \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} \mu(\{x \in X : x_0 = i, x_k = j\}) \\
+        &= \frac{1}{\pi_i} \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} \int_{X} \mathds{1}_{\{x:x_0=i, x_k=j\}}\, d\mu(x) \\
+        &= \frac{1}{\pi_i} \int_{X} \lim_{n\rightarrow\infty} \frac{1}{n} \sum\limits_{k=0}^{n-1} \mathds{1}_{\{x:x_0=i, x_k=j\}}\, d\mu(x) &&\text{(by DCT)}\\
+        &= \frac{1}{\pi_i} \int_{X} f^*(x) \mathds{1}_{\{x:x_0=i\}}\, d\mu(x) \\
+        &= \frac{1}{\pi_i} \int_{\{x:x_0=i\}} f^*(x)\, d\mu(x). 
+    \end{align*}
+    Since $f^*$ is integrable, we know $q_{ij}$ exists and is well-defined. 
+\end{proof}
+\end{document}
